@@ -4,7 +4,7 @@ import { handleAllTasks } from "./routes/tasks.js";
 import { connectDB } from "./db/db.js";
 
 dotenv.config();
-  const PORT = process.env.PORT || 3001;
+  const PORT = process.env.PORT || 3000;
 
 async function serverStart() {
   await connectDB();
