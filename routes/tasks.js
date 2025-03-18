@@ -34,7 +34,40 @@ export async function handleAllTasks(req, res) {
       res.end(JSON.stringify({ message: "failed to  delete!" }));
     } else {
       res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ message: "successful deleted!" }));
+      res.end(JSON.stringify({ message: "successfully deleted!" }));
     }
+  } else if (req.method.startsWith("PATCH") && req.url.startsWith("/tasks/")) {
+    const taskId = req.url.split("/")[2];
+
+    if (!ObjectId.isValid(taskId)) {
+      res.writeHead(400, {
+        "Content-Type": "application/json",
+      });
+      res.end(JSON.stringify({ message: "Invalid Task  ID" }));
+      return;
+    }
+
+    let body = "";
+
+    req.on("data", (chunk) => {
+      body += chunk.toString();
+    });
+
+    req.on("end", async () => {
+      const updates = JSON.parse(body);
+      const result = await taskCollection.updateOne(
+        { _id: new ObjectId(taskId) },
+        { $set: updates }
+      );
+
+      if (result.matchedCount === 0) {
+        res.writeHead(404, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ message: "Task not found!" }));
+        return;
+      } else {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ message: "Task successfully   updated!" }));
+      }
+    });
   }
 }
